@@ -1,29 +1,41 @@
-# Lumina - Virtual Library
+# Lumina - Una Red Social Simple
 
-Welcome to Lumina, a virtual library with a celestial, cosmic, and mystical aesthetic.
+Lumina es un proyecto de red social desarrollado con PHP puro para aprender los fundamentos del desarrollo web backend.
 
-## Project Goal
-To create a feature-rich platform for discovering and reading novels, similar in functionality to webnovel.com, but with a unique 'Lumina' aesthetic. The project will be hosted on Render and utilize databases for content and user data.
+## ✨ Características
+- Registro de usuarios
+- Inicio de sesión
+- Creación de posts
 
-## Current Status
-- Basic HTML structure in `index.html` including header, navigation, hero section, featured novels, and placeholder sections for all novels, genres, and user profile.
-- Initial CSS styling in `css/style.css` to reflect the celestial/cosmic theme, including styles for novel cards.
-- Basic JavaScript in `js/main.js` for console logs and smooth scrolling.
-- This `README.md` file.
+## 🛠️ Tecnologías Utilizadas
+- **Backend:** PHP 8+
+- **Base de Datos:** MySQL
+- **Frontend:** HTML, CSS, JavaScript
 
-## Prerequisites
-- **Node.js and npm**: While not strictly required for viewing the current static HTML, Node.js and npm will be essential for future development (e.g., managing dependencies, build tools, backend development). Please install from [https://nodejs.org/](https://nodejs.org/).
-- **Python (for simple preview)**: If you have Python installed, you can use its built-in HTTP server to preview the website locally.
+## 🚀 Cómo Empezar
 
-## How to Preview
-1.  Navigate to the project directory (`c:\Users\ramos\OneDrive\Desktop\lumina`) in your terminal.
-2.  If you have Python installed, run the command: `python -m http.server`
-3.  Open your web browser and go to `http://localhost:8000` (or the port number indicated by the command).
+Sigue estos pasos para ejecutar el proyecto en tu máquina local.
 
-## Next Steps
-- Install Node.js and initialize `package.json` (`npm init -y`).
-- Further refine the UI/UX design, especially for novel display and interaction.
-- Plan and design database schemas (for novels, users, chapters, comments, likes, etc.).
-- Start developing backend functionalities (e.g., API endpoints for fetching novels).
-- Implement user authentication and profile management.
+1.  **Clona el repositorio:**
+    ```bash
+    git clone https://github.com/MaizeTheGods/Lumina.git
+    cd Lumina
+    ```
 
+2.  **Configura la base de datos:**
+    - Crea una base de datos en MySQL llamada `lumina`.
+    - Importa el archivo `database/lumina.sql` en tu base de datos.
+
+3.  **Configura las credenciales:**
+    - Renombra el archivo `src/config/database.php.example` a `database.php`.
+    - Edita `src/config/database.php` con tus credenciales de MySQL.
+
+4.  **Instala las dependencias:**
+    ```bash
+    composer install
+    ```
+
+5.  **Inicia el servidor:**
+    ```bash
+    php -S localhost:8000
+    ```
