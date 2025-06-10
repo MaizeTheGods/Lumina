@@ -1,305 +1,162 @@
+// --- IMPORTACIONES DE MÓDULOS ---
 const express = require('express');
-const multer = require('multer');
-const cors = require('cors');
-const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
+const { spawn } = require('child_process');
+const { v4: uuidv4 } = require('uuid');
+const fs = require('fs').promises; // Usamos la versión de promesas para código async/await
 
+// --- CONFIGURACIÓN INICIAL DE EXPRESS ---
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// --- MIDDLEWARE ---
+// Sirve archivos estáticos (HTML, CSS, JS, imágenes) desde el directorio raíz del proyecto.
+app.use(express.static(path.join(__dirname)));
+
+// Permite al servidor entender JSON y datos de formularios.
 app.use(express.json());
-app.use('/css', express.static(path.join(__dirname, 'css')));
-app.use('/js', express.static(path.join(__dirname, 'js')));
-app.use('/uploads', express.static('uploads'));
+app.use(express.urlencoded({ extended: true }));
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir);
-}
-
-// Multer storage config
+// --- CONFIGURACIÓN DE MULTER PARA LA SUBIDA DE ARCHIVOS ---
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        // Ensure uploadsDir exists *before* Multer tries to write.
-        if (!fs.existsSync(uploadsDir)) {
-            try {
-                fs.mkdirSync(uploadsDir, { recursive: true });
-                console.log(`[Multer Dest] Created uploads directory: ${uploadsDir}`);
-            } catch (err) {
-                console.error(`[Multer Dest] Failed to create uploads directory ${uploadsDir}:`, err);
-                return cb(err); // Pass error to Multer
-            }
-        }
-        cb(null, uploadsDir); // Use absolute path
+    destination: (req, file, cb) => {
+        // Generamos un ID único para la subida. Este será el ID de la novela.
+        const novelId = uuidv4();
+        const uploadPath = path.join(__dirname, 'uploads', novelId);
+        
+        fs.mkdir(uploadPath, { recursive: true }).then(() => {
+            // Guardamos la ruta en el objeto `req` para usarla después.
+            req.uploadPath = uploadPath;
+            cb(null, uploadPath);
+        }).catch(err => cb(err));
     },
-    filename: function (req, file, cb) {
-        // Sanitize originalname to prevent path traversal or invalid characters
-        const sanitizedOriginalName = path.basename(file.originalname).replace(/[^a-zA-Z0-9._\-]/g, '');
-        cb(null, Date.now() + '-' + sanitizedOriginalName);
+    filename: (req, file, cb) => {
+        // Mantenemos el nombre original del archivo.
+        cb(null, file.originalname);
     }
 });
 const upload = multer({ storage: storage });
 
-// --- EPUB METADATA & COVER EXTRACTION ---
-const unzipper = require('unzipper');
-const sharp = require('sharp');
+// --- RUTAS DE LA API ---
 
-async function extractEpubMetadata(epubPath, destDir, destBasename) {
-    // Defaults
-    let title = destBasename;
-    let author = 'Desconocido';
-    let coverPath = null;
-    let foundCover = false;
-    let coverBuffer = null;
-    let chapters = [];
-    // Unzip EPUB and extract metadata
-    const directory = await unzipper.Open.file(epubPath);
-    // Find container.xml
-    const containerEntry = directory.files.find(f => f.path === 'META-INF/container.xml');
-    if (!containerEntry) return { title, author, cover: null, chapters };
-    const containerXml = (await containerEntry.buffer()).toString();
-    // Find path to OPF file
-    const opfMatch = containerXml.match(/full-path="([^"]+)"/);
-    if (!opfMatch) return { title, author, cover: null, chapters };
-    const opfPath = opfMatch[1];
-    const opfEntry = directory.files.find(f => f.path === opfPath);
-    if (!opfEntry) return { title, author, cover: null, chapters };
-    const opfXml = (await opfEntry.buffer()).toString();
-    // Extract title & author
-    const titleMatch = opfXml.match(/<dc:title[^>]*>([^<]+)<\/dc:title>/);
-    if (titleMatch) title = titleMatch[1];
-    const authorMatch = opfXml.match(/<dc:creator[^>]*>([^<]+)<\/dc:creator>/);
-    if (authorMatch) author = authorMatch[1];
-    // Find cover id
-    let coverId = null;
-    const metaCoverMatch = opfXml.match(/<meta[^>]+name=["']cover["'][^>]+content=["']([^"']+)["'][^>]*>/);
-    if (metaCoverMatch) coverId = metaCoverMatch[1];
-    // Find cover href
-    let coverHref = null;
-    if (coverId) {
-        const coverHrefMatch = new RegExp(`<item[^>]+id=["']${coverId}["'][^>]+href=["']([^"']+)["']`, 'i').exec(opfXml);
-        if (coverHrefMatch) coverHref = coverHrefMatch[1];
-    }
-    // Try fallback: look for jpeg/png in manifest
-    if (!coverHref) {
-        const fallback = opfXml.match(/<item[^>]+href=["']([^"']+\.(jpg|jpeg|png))["'][^>]*>/i);
-        if (fallback) coverHref = fallback[1];
-    }
-    // Extract cover buffer
-    if (coverHref) {
-        // Find base path
-        const basePath = opfPath.substring(0, opfPath.lastIndexOf('/')+1);
-        const coverFullPath = basePath + coverHref;
-        const coverEntry = directory.files.find(f => f.path === coverFullPath);
-        if (coverEntry) {
-            coverBuffer = await coverEntry.buffer();
-            foundCover = true;
-        }
-    }
-    // Save cover image if found
-    if (foundCover && coverBuffer) {
-        const coverOutPath = path.join(destDir, destBasename + '-cover.jpg');
-        await sharp(coverBuffer).resize(300, 400, { fit: 'inside' }).jpeg().toFile(coverOutPath);
-        coverPath = '/uploads/' + path.basename(coverOutPath);
-    }
-    // Extract chapters (spine)
-    const spineMatches = [...opfXml.matchAll(/<itemref[^>]+idref=["']([^"']+)["'][^>]*>/g)].map(m => m[1]);
-    chapters = spineMatches.map(idref => {
-        const itemMatch = new RegExp(`<item[^>]+id=["']${idref}["'][^>]+href=["']([^"']+)["'][^>]*>`, 'i').exec(opfXml);
-        let href = itemMatch ? itemMatch[1] : null;
-        let label = idref;
-        // Try to get <navLabel> or fallback
-        // (For simplicity, just use idref or href basename here)
-        if (href) label = href.replace(/_/g, ' ').replace(/\.[a-z0-9]+$/i, '');
-        return { idref, href, label };
-    });
-    return { title, author, cover: coverPath, chapters };
-}
-
-// Obtener metadatos de una novela EPUB por filename
-app.get('/api/novel/:file', async (req, res) => {
-    try {
-        const filename = req.params.file;
-        const epubPath = path.join(uploadsDir, filename);
-        if (!fs.existsSync(epubPath)) {
-            console.error(`[404] EPUB no encontrado: ${epubPath}`);
-            return res.status(404).json({ error: 'EPUB no encontrado' });
-        }
-        const meta = await extractEpubMetadata(epubPath, uploadsDir, filename);
-        // Si hay portada, servirla como URL relativa
-        if (meta.cover && !meta.cover.startsWith('http')) {
-            meta.cover = '/uploads/' + path.basename(meta.cover);
-        }
-        res.json(meta);
-    } catch (err) {
-        console.error('Error extrayendo metadatos EPUB:', err);
-        res.status(500).json({ error: 'Error al procesar EPUB' });
-    }
-});
-
-// Upload EPUB endpoint
-app.post('/api/upload-epub', upload.single('epub'), async (req, res) => {
-    // Check if Multer failed or no file was sent
+// RUTA PARA SUBIR Y PROCESAR UN NUEVO EPUB
+app.post('/api/upload', upload.single('epubFile'), (req, res) => {
     if (!req.file) {
-        console.error('[Upload Error] Multer failed or no file received.');
-        // Multer might have already sent a response or an error might have occurred before this handler.
-        // If res is not headersSent, send a response.
-        if (!res.headersSent) {
-            return res.status(400).json({ error: 'No file uploaded or Multer error.' });
+        return res.status(400).json({ message: 'No se ha subido ningún archivo.' });
+    }
+
+    // Llamamos al script de Python para procesar el EPUB.
+    const pythonProcess = spawn('python', [path.join(__dirname, 'backend_epub.py'), req.uploadPath]);
+
+    let stderr = ''; // Variable para capturar la salida de error
+    pythonProcess.stdout.on('data', (data) => {
+        console.log(`Python Script stdout: ${data}`);
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`Python Script stderr: ${data}`);
+        stderr += data.toString();
+    });
+
+    pythonProcess.on('close', (code) => {
+        if (code === 0) {
+            res.status(200).json({ message: 'Archivo subido y procesado con éxito.' });
+        } else {
+            res.status(500).json({ message: 'Error al procesar el archivo EPUB.', error: stderr });
         }
-        return; // Avoid further processing if headers already sent
-    }
-
-    const epubPath = req.file.path; // This is the full path where Multer saved the file
-    const originalFilenameForBase = req.file.filename; // Filename as saved by Multer (timestamped)
-    const base = path.parse(originalFilenameForBase).name; // Base name from the Multer-saved file
-
-    try {
-        // This check is more for operations *after* Multer, like saving metadata/cover
-        if (!fs.existsSync(uploadsDir)) {
-            console.warn(`[Upload] Uploads directory ${uploadsDir} was missing post-Multer, attempting to recreate.`);
-            fs.mkdirSync(uploadsDir, { recursive: true });
-        }
-
-        console.log(`[Upload] Processing file: ${epubPath}`);
-        console.log(`[Upload] Base name for metadata/cover: ${base}`);
-
-        const meta = await extractEpubMetadata(epubPath, uploadsDir, base); // Pass absolute uploadsDir
-
-        const metadataJsonPath = path.join(uploadsDir, base + '.json');
-        fs.writeFileSync(metadataJsonPath, JSON.stringify(meta, null, 2));
-        console.log(`[Upload] Metadata saved to: ${metadataJsonPath}`);
-
-        res.json({ message: 'EPUB uploaded successfully', filename: originalFilenameForBase, meta });
-
-    } catch (e) {
-        console.error('[Upload Error] Error during EPUB processing or metadata saving:', e);
-
-        if (fs.existsSync(epubPath)) {
-            try {
-                fs.unlinkSync(epubPath);
-                console.log(`[Upload Error] Cleaned up partially uploaded EPUB: ${epubPath}`);
-            } catch (unlinkErr) {
-                console.error(`[Upload Error] Failed to cleanup partially uploaded EPUB ${epubPath}:`, unlinkErr);
-            }
-        }
-        // If res is not headersSent, send a response.
-        if (!res.headersSent) {
-            res.status(500).json({
-                message: 'EPUB upload failed during processing.',
-                error: e.message,
-                filename: req.file ? originalFilenameForBase : 'N/A'
-            });
-        }
-    }
-});
-
-// Get comments for a novel
-app.get('/api/novel/:filename/comments', (req, res) => {
-    const base = path.parse(req.params.filename).name;
-    const commentsPath = path.join('uploads', base + '-comments.json');
-    if (fs.existsSync(commentsPath)) {
-        try {
-            const comments = JSON.parse(fs.readFileSync(commentsPath));
-            res.json(comments);
-        } catch {
-            res.status(500).json({ error: 'Error reading comments' });
-        }
-    } else {
-        res.json([]);
-    }
-});
-
-// Post a new comment for a novel
-app.post('/api/novel/:filename/comments', express.json(), (req, res) => {
-    const base = path.parse(req.params.filename).name;
-    const commentsPath = path.join('uploads', base + '-comments.json');
-    let comments = [];
-    if (fs.existsSync(commentsPath)) {
-        try {
-            comments = JSON.parse(fs.readFileSync(commentsPath));
-        } catch {}
-    }
-    const { text, user } = req.body;
-    if (!text || typeof text !== 'string') {
-        return res.status(400).json({ error: 'Comentario vacío o inválido' });
-    }
-    const comment = {
-        text: text.trim(),
-        user: user || 'Anónimo',
-        timestamp: Date.now()
-    };
-    comments.unshift(comment); // Más reciente primero
-    try {
-        fs.writeFileSync(commentsPath, JSON.stringify(comments, null, 2));
-        res.status(201).json(comment);
-    } catch {
-        res.status(500).json({ error: 'Error al guardar comentario' });
-    }
-});
-
-// Get metadata for a single novel
-app.get('/api/novel/:filename', (req, res) => {
-    const base = path.parse(req.params.filename).name;
-    const metaPath = path.join('uploads', base + '.json');
-    if (fs.existsSync(metaPath)) {
-        try {
-            const meta = JSON.parse(fs.readFileSync(metaPath));
-            res.json(meta);
-        } catch {
-            res.status(500).json({ error: 'Error reading metadata' });
-        }
-    } else {
-        res.status(404).json({ error: 'Novel not found' });
-    }
-});
-
-// List uploaded EPUBs (with metadata)
-app.get('/api/novels', (req, res) => {
-    fs.readdir('uploads', (err, files) => {
-        if (err) return res.status(500).json({ error: 'Error reading uploads' });
-        const epubs = files.filter(f => f.endsWith('.epub'));
-        const novels = epubs.map(f => {
-            const base = path.parse(f).name;
-            let meta = { title: base, author: 'Desconocido', cover: null };
-            const metaPath = path.join('uploads', base + '.json');
-            if (fs.existsSync(metaPath)) {
-                try { meta = JSON.parse(fs.readFileSync(metaPath)); } catch {}
-            }
-            return {
-                filename: f,
-                title: meta.title,
-                author: meta.author,
-                cover: meta.cover
-            };
-        });
-        res.json(novels);
     });
 });
 
-// Placeholder API endpoint
-app.get('/api/test', (req, res) => {
-    res.json({ message: 'Welcome to Lumina API! The cosmos is vast and full of wonders.' });
-});
+// RUTA PARA OBTENER LA LISTA DE TODAS LAS NOVELAS (BIBLIOTECA)
+app.get('/api/novels', async (req, res) => {
+    try {
+        const novelsDataDir = path.join(__dirname, 'novels_data');
+        
+        // --- LA CORRECCIÓN MÁS IMPORTANTE ---
+        // Primero, comprobamos si el directorio existe.
+        try {
+            await fs.access(novelsDataDir);
+        } catch {
+            // Si no existe, significa que no hay novelas. Devolvemos un array vacío.
+            console.log("La carpeta 'novels_data' no existe, devolviendo biblioteca vacía.");
+            return res.json([]);
+        }
+        
+        const novelFolders = await fs.readdir(novelsDataDir, { withFileTypes: true });
 
-// Serve static files (HTML, CSS, JS, etc.)
-app.use(express.static(path.join(__dirname, '.')));
-
-// Servir archivos EPUB con el tipo MIME correcto
-app.get('/uploads/:epubFile', (req, res, next) => {
-    const epubFile = req.params.epubFile;
-    if (!epubFile.endsWith('.epub')) return next();
-    const filePath = path.join(__dirname, 'uploads', epubFile);
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).send('EPUB not found');
+        const novels = await Promise.all(
+            novelFolders
+                .filter(dirent => dirent.isDirectory())
+                .map(async (dir) => {
+                    const metadataPath = path.join(novelsDataDir, dir.name, 'metadata.json');
+                    try {
+                        const metadataContent = await fs.readFile(metadataPath, 'utf-8');
+                        const metadata = JSON.parse(metadataContent);
+                        return { id: dir.name, ...metadata };
+                    } catch (error) {
+                        console.warn(`Omitiendo la novela en la carpeta '${dir.name}' por error:`, error.message);
+                        return null;
+                    }
+                })
+        );
+        res.json(novels.filter(n => n !== null));
+    } catch (error) {
+        console.error("Error al obtener la lista de novelas:", error);
+        res.status(500).json({ message: 'Error interno al cargar la biblioteca.' });
+        res.status(500).json({ message: 'Error al cargar la biblioteca.' });
     }
-    res.setHeader('Content-Type', 'application/epub+zip');
-    res.sendFile(filePath);
 });
 
+
+// RUTA PARA OBTENER LOS DATOS DE UNA NOVELA ESPECÍFICA
+app.get('/api/novels/:novelId', async (req, res) => {
+    try {
+        const novelId = req.params.novelId;
+        const novelFolderPath = path.join(__dirname, 'novels_data', novelId);
+
+        // Leemos el archivo de metadatos.
+        const metadataPath = path.join(novelFolderPath, 'metadata.json');
+        const metadataContent = await fs.readFile(metadataPath, 'utf-8');
+        const metadata = JSON.parse(metadataContent);
+
+        // Leemos todos los archivos de capítulos del directorio.
+        const files = await fs.readdir(novelFolderPath);
+        const chapterFiles = files
+            .filter(file => file.startsWith('chapter') && file.endsWith('.html')) // Ahora buscamos .html
+            .sort((a, b) => {
+                const numA = parseInt(a.match(/\d+/)[0]);
+                const numB = parseInt(b.match(/\d+/)[0]);
+                return numA - numB;
+            });
+
+        const chapters = await Promise.all(
+            chapterFiles.map(async (fileName, index) => {
+                const chapterPath = path.join(novelFolderPath, fileName);
+                const content = await fs.readFile(chapterPath, 'utf-8');
+                return {
+                    title: metadata.chapters[index]?.title || `Capítulo ${index + 1}`,
+                    content: content
+                };
+            })
+        );
+        
+        const novelData = {
+            title: metadata.title,
+            author: metadata.author,
+            cover: metadata.cover,
+            chapters: chapters
+        };
+
+        res.json(novelData);
+
+    } catch (error) {
+        console.error(`Error al obtener datos de la novela ${req.params.novelId}:`, error);
+        res.status(404).json({ message: 'Novela no encontrada o error al procesar los datos.' });
+    }
+});
+
+// --- INICIO DEL SERVIDOR ---
 app.listen(PORT, () => {
-    console.log(`Lumina server shining brightly on http://localhost:${PORT}`);
+    console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });

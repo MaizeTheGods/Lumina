@@ -1,124 +1,161 @@
+import sys
 import os
-from flask import Flask, request, jsonify, send_from_directory
-from werkzeug.utils import secure_filename
+import json
 from ebooklib import epub
-import ebooklib
-import uuid
+import bs4
+import warnings
 
-UPLOAD_FOLDER = 'uploads'
-NOVELS_FOLDER = 'novels_data'
-ALLOWED_EXTENSIONS = {'epub'}
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['NOVELS_FOLDER'] = NOVELS_FOLDER
-
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(NOVELS_FOLDER, exist_ok=True)
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def extract_novel(epub_path, novel_id):
-    book = epub.read_epub(epub_path)
-    meta = {
-        'id': novel_id,
-        'title': book.get_metadata('DC', 'title')[0][0] if book.get_metadata('DC', 'title') else 'Sin título',
-        'author': book.get_metadata('DC', 'creator')[0][0] if book.get_metadata('DC', 'creator') else 'Desconocido',
-        'chapters': []
-    }
-    chapters = []
-    for idx, item in enumerate(book.get_items_of_type(ebooklib.ITEM_DOCUMENT)):
-        chapter_id = f'chapter_{idx}'
+def process_epub(upload_path):
+    try:
+        novel_id = os.path.basename(upload_path)
         
-        # Lógica mejorada para obtener el título del capítulo
-        chapter_title = None
-        if hasattr(item, 'title') and item.title: # Priorizar título explícito
-            chapter_title = item.title
-        elif hasattr(item, 'get_name') and item.get_name(): # Fallback a nombre de archivo limpiado
-            raw_file_name = item.get_name()
-            # Extraer solo el nombre del archivo, remover extensión, reemplazar separadores y capitalizar
-            clean_name = os.path.splitext(os.path.basename(raw_file_name))[0]
-            clean_name = clean_name.replace('-', ' ').replace('_', ' ').capitalize()
-            chapter_title = clean_name
+        epub_file_name = next((f for f in os.listdir(upload_path) if f.endswith('.epub')), None)
+        if not epub_file_name:
+            raise Exception("No se encontró archivo .epub en la carpeta de subida.")
+
+        epub_path = os.path.join(upload_path, epub_file_name)
+        book = epub.read_epub(epub_path, options={"ignore_ncx": True})
+
+        output_dir = os.path.join(os.path.dirname(upload_path), '..', 'novels_data', novel_id)
+        os.makedirs(output_dir, exist_ok=True)
+
+        title = (book.get_metadata('DC', 'title')[0][0] if book.get_metadata('DC', 'title') else "Título desconocido")
+        author = (book.get_metadata('DC', 'creator')[0][0] if book.get_metadata('DC', 'creator') else "Autor desconocido")
+
+        # --- Extracción de TODAS las Imágenes (Paso Clave, sin cambios) ---
+        image_path_map = {}
+        image_output_dir = os.path.join(output_dir, 'images')
+        os.makedirs(image_output_dir, exist_ok=True)
         
-        if not chapter_title: # Fallback final si nada funcionó
-            chapter_title = f'Capítulo {idx+1}'
+        for item in book.get_items():
+            if item.media_type.startswith('image/'):
+                file_name = os.path.basename(item.get_name())
+                save_path = os.path.join(image_output_dir, file_name)
+                with open(save_path, 'wb') as f:
+                    f.write(item.get_content())
+                
+                original_path = item.get_name()
+                new_web_path = f"/novels_data/{novel_id}/images/{file_name}"
+                image_path_map[original_path] = new_web_path
 
-        chapter_content = item.get_content().decode('utf-8')
-        chapter_path = os.path.join(NOVELS_FOLDER, f'{novel_id}_{chapter_id}.html')
-        with open(chapter_path, 'w', encoding='utf-8') as f:
-            f.write(chapter_content)
-        chapters.append({'id': chapter_id, 'title': chapter_title, 'path': f'/novels_data/{novel_id}_{chapter_id}.html'})
-    meta['chapters'] = chapters
-    # Guarda metadatos
-    meta_path = os.path.join(NOVELS_FOLDER, f'{novel_id}_meta.json')
-    with open(meta_path, 'w', encoding='utf-8') as f:
-        import json
-        json.dump(meta, f, ensure_ascii=False, indent=2)
-    return meta
+        # --- EXTRACCIÓN DE PORTADA (SECCIÓN MEJORADA CON ESTRATEGIA DE 4 PASOS) ---
+        cover_image_path = None
+        
+        # PASO 1: Intentar el método estándar usando metadatos OPF ('cover')
+        meta_cover = book.get_metadata('OPF', 'cover')
+        if meta_cover:
+            cover_id = meta_cover[0][1].get('content')
+            cover_item = book.get_item_with_id(cover_id)
+            if cover_item and cover_item.get_name() in image_path_map:
+                cover_image_path = image_path_map[cover_item.get_name()]
+        
+        # PASO 2: Si falla, intentar buscar en la sección 'guide' del EPUB
+        if not cover_image_path and book.guide:
+            for item in book.guide:
+                if item.get('type') == 'cover':
+                    # El 'href' puede ser a un HTML que contiene la imagen
+                    href = item.get('href')
+                    cover_item = book.get_item_with_href(href)
+                    if not cover_item:
+                        continue
+                    
+                    if cover_item.media_type.startswith('image/'):
+                        # Es una imagen directa
+                        if cover_item.get_name() in image_path_map:
+                            cover_image_path = image_path_map[cover_item.get_name()]
+                            break
+                    else:
+                        # Es un XHTML, hay que buscar la imagen dentro
+                        soup = bs4.BeautifulSoup(cover_item.get_content(), 'html.parser')
+                        img_tag = soup.find('img')
+                        if img_tag and img_tag.get('src'):
+                            img_src = img_tag.get('src')
+                            # Buscar la imagen por su nombre de archivo en nuestro mapa
+                            img_basename = os.path.basename(img_src)
+                            for original_path, new_web_path in image_path_map.items():
+                                if os.path.basename(original_path) == img_basename:
+                                    cover_image_path = new_web_path
+                                    break
+                            if cover_image_path:
+                                break
+            
+        # PASO 3: Si sigue fallando, buscar por nombre de archivo 'cover'
+        if not cover_image_path:
+            for original_path, new_web_path in image_path_map.items():
+                if 'cover' in original_path.lower():
+                    cover_image_path = new_web_path
+                    break
+        
+        # PASO 4: Como último recurso, buscar imagen en el primer item del 'spine'
+        if not cover_image_path and book.spine:
+            first_item_id = book.spine[0][0]
+            first_item = book.get_item_with_id(first_item_id)
+            if first_item:
+                soup = bs4.BeautifulSoup(first_item.get_content(), 'html.parser')
+                img_tag = soup.find('img')
+                if img_tag and img_tag.get('src'):
+                    img_src = img_tag.get('src')
+                    img_basename = os.path.basename(img_src)
+                    for original_path, new_web_path in image_path_map.items():
+                        if os.path.basename(original_path) == img_basename:
+                            cover_image_path = new_web_path
+                            break
+                            
+        # --- Extracción de Capítulos (sin cambios) ---
+        chapters_metadata = []
+        if book.spine:
+            for item_id, _ in book.spine:
+                item = book.get_item_with_id(item_id)
+                if item and item.media_type == 'application/xhtml+xml':
+                    soup = bs4.BeautifulSoup(item.get_content(), 'html.parser')
+                    
+                    for img_tag in soup.find_all('img'):
+                        old_src = img_tag.get('src')
+                        if not old_src: continue
+                        
+                        old_src_basename = os.path.basename(old_src)
+                        for original_path, new_web_path in image_path_map.items():
+                            if os.path.basename(original_path) == old_src_basename:
+                                img_tag['src'] = new_web_path
+                                break
+                    
+                    content_body = soup.find('body')
+                    content_html = str(content_body) if content_body else ''
 
-@app.route('/upload-epub', methods=['POST'])
-def upload_epub():
-    if 'epub' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['epub']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        novel_id = str(uuid.uuid4())
-        epub_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{novel_id}_{filename}')
-        file.save(epub_path)
-        meta = extract_novel(epub_path, novel_id)
-        return jsonify({'message': 'EPUB procesado', 'novel': meta}), 201
-    return jsonify({'error': 'Archivo no permitido'}), 400
+                    chapter_filename = f"chapter{len(chapters_metadata) + 1}.html"
+                    chapter_path = os.path.join(output_dir, chapter_filename)
+                    with open(chapter_path, 'w', encoding='utf-8') as f:
+                        f.write(content_html)
+                    
+                    chapter_title_tag = soup.find('title') or soup.find(['h1', 'h2', 'h3'])
+                    chapter_title = chapter_title_tag.get_text(strip=True) if chapter_title_tag else f"Capítulo {len(chapters_metadata) + 1}"
+                    chapters_metadata.append({"title": chapter_title})
+        
+        # --- Guardar Metadata.json Final ---
+        metadata = {
+            "id": novel_id, "title": title, "author": author,
+            "cover": cover_image_path, "chapters": chapters_metadata
+        }
+        with open(os.path.join(output_dir, 'metadata.json'), 'w', encoding='utf-8') as f:
+            json.dump(metadata, f, ensure_ascii=False, indent=4)
+            
+        print(f"Procesamiento exitoso para la novela: '{title}'.")
+        print(f"Portada encontrada: {'Sí' if cover_image_path else 'No'}")
+        print(f"Capítulos extraídos: {len(chapters_metadata)}")
 
-@app.route('/novels', methods=['GET'])
-def list_novels():
-    novels = []
-    for fname in os.listdir(NOVELS_FOLDER):
-        if fname.endswith('_meta.json'):
-            with open(os.path.join(NOVELS_FOLDER, fname), encoding='utf-8') as f:
-                import json
-                novels.append(json.load(f))
-    return jsonify(novels)
-
-@app.route('/novel/<novel_id>', methods=['GET'])
-def get_novel(novel_id):
-    meta_path = os.path.join(NOVELS_FOLDER, f'{novel_id}_meta.json')
-    if not os.path.exists(meta_path):
-        return jsonify({'error': 'Novela no encontrada'}), 404
-    with open(meta_path, encoding='utf-8') as f:
-        import json
-        meta = json.load(f)
-    return jsonify(meta)
-
-@app.route('/novels_data/<path:filename>')
-def serve_chapter(filename):
-    return send_from_directory(NOVELS_FOLDER, filename)
-
-@app.route('/css/<path:filename>')
-def serve_css(filename):
-    return send_from_directory('css', filename)
-
-@app.route('/js/<path:filename>')
-def serve_js(filename):
-    return send_from_directory('js', filename)
-
-@app.route('/uploads/<path:filename>')
-def serve_uploads(filename):
-    return send_from_directory('uploads', filename)
-
-@app.route('/<path:filename>')
-def serve_html(filename):
-    if filename.endswith('.html'):
-        return send_from_directory('.', filename)
-    return 'Not Found', 404
-
-@app.route('/')
-def index():
-    return send_from_directory('.', 'index.html')
+    except Exception as e:
+        import traceback
+        print(f"Error procesando EPUB: {e}", file=sys.stderr)
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    if len(sys.argv) > 1:
+        upload_folder_path = sys.argv[1]
+        process_epub(upload_folder_path)
+    else:
+        print("Error: Se requiere la ruta de la carpeta de subida.", file=sys.stderr)
+        sys.exit(1)

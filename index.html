@@ -4,41 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lumina - Tu Biblioteca Cósmica</title>
+    <!-- He movido todos los estilos a un solo archivo CSS para mejor organización -->
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        body { background: #f6f7fb; font-family: 'Nunito', sans-serif; }
-        .container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 18px; box-shadow: 0 8px 40px #7A89D144; padding: 32px; }
-        h1 { color: #7A89D1; }
-        .upload-form { margin-bottom: 32px; display: flex; gap: 12px; align-items: center; }
-        .novel-list { margin-top: 32px; }
-        .novel-card { background: #eaf0fa; border-radius: 12px; padding: 18px 24px; margin-bottom: 18px; box-shadow: 0 2px 12px #7A89D122; display: flex; justify-content: space-between; align-items: center; }
-        .novel-title { font-size: 1.3em; color: #7A89D1; margin: 0; }
-        .novel-author { color: #6c6f93; }
-        .read-btn { background: #7A89D1; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        .read-btn:hover { background: #5a6bb7; }
-        .status-msg { margin-left: 16px; font-size: 1em; }
-        .hero-img { max-width: 320px; width: 100%; border-radius: 18px; margin-top: 24px; }
-        .hero-content { max-width: 500px; }
-        .genre-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-        .genre-tag { background: #eaf0fa; color: #7A89D1; border-radius: 8px; padding: 6px 14px; text-decoration: none; font-weight: 600; transition: background 0.2s; }
-        .genre-tag:hover { background: #7A89D1; color: #fff; }
-        footer { text-align: center; color: #b0b5d6; margin-top: 40px; }
-    </style>
 </head>
 <body>
     <header role="banner">
         <div class="header-content">
-            <h1><a href="index.html" aria-label="Lumina: Biblioteca Virtual" style="text-decoration: none; color: inherit;">Lumina</a></h1>
+            <h1><a href="index.html" aria-label="Lumina: Biblioteca Virtual">Lumina</a></h1>
             <nav aria-label="Navegación principal">
                 <ul>
-                    <li><a href="#hero" aria-label="Ir a la página de inicio">Inicio</a></li>
-                    <li><a href="#novels" aria-label="Ir a la sección de novelas">Novelas</a></li>
-                    <li><a href="#genres" aria-label="Ir a la sección de géneros">Géneros</a></li>
-                    <li><a href="#profile" aria-label="Ir a la sección de perfil">Mi Perfil</a></li>
+                    <li><a href="#hero">Inicio</a></li>
+                    <li><a href="#novels">Novelas</a></li>
+                    <li><a href="profile.html">Mi Perfil</a></li>
                 </ul>
             </nav>
         </div>
     </header>
+
     <main class="content" role="main">
         <section class="hero" id="hero">
             <div class="hero-content">
@@ -46,127 +28,41 @@
                 <p>Tu biblioteca virtual para explorar, leer y coleccionar novelas EPUB con una experiencia visual de otro mundo.</p>
                 <a href="#novels" class="btn btn-primary" aria-label="Explorar novelas">Explorar Novelas</a>
             </div>
-            <img src="img/hero-visual.png" alt="Ilustración celestial de Lumina, una biblioteca flotando entre estrellas" class="hero-img">
+            <img src="img/hero-visual.png" alt="Ilustración celestial de Lumina" class="hero-img">
         </section>
-        <section id="featured-novels" class="featured-novels content-section">
-            <h2>Explora Nuevos Universos</h2>
-            <p class="coming-soon-placeholder">Nuevas lecturas cósmicas y aventuras interdimensionales llegarán pronto a esta sección. ¡Mantén tus sensores alerta!</p>
-        </section>
+
         <section class="novels-section content-section" id="novels" aria-label="Sección de novelas">
-            <h2>Novelas</h2>
-            <div class="container" style="box-shadow:none; padding:0; background:transparent;">
-                <form class="upload-form" id="epub-upload-form">
-                    <button type="button" id="select-epub-btn" class="btn btn-secondary">Subir EPUB</button>
-                    <input type="file" id="epub-file" name="epub" accept=".epub" style="display:none;">
-                    <button type="submit" class="read-btn">Cargar</button>
-                    <span class="status-msg" id="epub-upload-status"></span>
+            <h2>Mi Biblioteca</h2>
+            
+            <!-- FORMULARIO DE SUBIDA -->
+            <div class="upload-container">
+                <form id="upload-form">
+                    <!-- He añadido un label para accesibilidad -->
+                    <label for="epub-file-input" class="btn btn-secondary">Seleccionar EPUB</label>
+                    <input type="file" id="epub-file-input" name="epubFile" accept=".epub" style="display:none;">
+                    <span id="file-name-display">Ningún archivo seleccionado</span>
+                    <button type="submit" class="btn btn-primary">Subir Novela</button>
                 </form>
-                <h3>Novelas Subidas</h3>
-                <div class="novel-list" id="novel-list">
-                    <div style="color:#b0b5d6;">No hay novelas subidas aún.</div>
-                </div>
+                <div id="upload-status" class="status-msg"></div>
+            </div>
+
+            <!-- CONTENEDOR DE LA BIBLIOTECA -->
+            <!-- Aquí es donde library.js insertará las novelas. El ID ahora es 'library-container' -->
+            <div class="library-grid" id="library-container">
+                <!-- Mensaje de carga inicial (será reemplazado por JavaScript) -->
+                <p class="loading-message">Cargando tu biblioteca...</p>
             </div>
         </section>
-        <section id="genres" class="content-section">
-            <h2>Explora Constelaciones de Géneros</h2>
-            <div class="genre-grid">
-                <a href="#genre-fantasy" class="genre-tag" aria-label="Ir a la sección de fantasía cósmica">Fantasía Cósmica</a>
-                <a href="#genre-scifi" class="genre-tag" aria-label="Ir a la sección de ciencia ficción estelar">Ciencia Ficción Estelar</a>
-                <a href="#genre-mystery" class="genre-tag" aria-label="Ir a la sección de misterio nebuloso">Misterio Nebular</a>
-                <a href="#genre-romance" class="genre-tag" aria-label="Ir a la sección de romance galáctico">Romance Galáctico</a>
-                <a href="#genre-adventure" class="genre-tag" aria-label="Ir a la sección de aventura interplanetaria">Aventura Interplanetaria</a>
-                <a href="#genre-horror" class="genre-tag" aria-label="Ir a la sección de terror cósmico">Terror Cósmico</a>
-                <a href="#genre-dimensional" class="genre-tag" aria-label="Ir a la sección de viajes dimensionales">Viajes Dimensionales</a>
-                <a href="#genre-cyberpunk" class="genre-tag" aria-label="Ir a la sección de cyberpunk nebuloso">Cyberpunk Nebuloso</a>
-            </div>
-            <p style="text-align:center; margin-top: 20px;">Y muchos más universos por descubrir...</p>
-        </section>
-        <!--
-        <section id="profile" class="content-section auth-section">
-            <h2>Únete a la Comunidad Lumina</h2>
-            <p>Crea una cuenta o inicia sesión para guardar tus novelas favoritas, seguir tu progreso de lectura y conectar con otros lectores cósmicos.</p>
-            <div class="auth-buttons">
-                <a href="login.html" class="btn btn-primary" aria-label="Iniciar sesión">Iniciar Sesión</a>
-                <a href="signup.html" class="btn btn-secondary" aria-label="Crear cuenta">Crear Cuenta</a>
-            </div>
-        </section>
-        -->
+
+        <!-- Puedes añadir más secciones aquí si quieres -->
+
     </main>
+
     <footer>
-        <p>&copy; 2025 Lumina. Todos los derechos reservados. Embárcate en la lectura.</p>
+        <p>© 2025 Lumina. Todos los derechos reservados. Embárcate en la lectura.</p>
     </footer>
-    <script>
-    const API_BASE = 'http://localhost:5000';
-    const uploadForm = document.getElementById('epub-upload-form');
-    const epubFileInput = document.getElementById('epub-file');
-    const statusSpan = document.getElementById('epub-upload-status');
-    const novelList = document.getElementById('novel-list');
-    const selectEpubBtn = document.getElementById('select-epub-btn');
 
-    selectEpubBtn.onclick = function() {
-        epubFileInput.click();
-    };
-
-    uploadForm.onsubmit = async function(e) {
-        e.preventDefault();
-        const file = epubFileInput.files[0];
-        if (!file) {
-            statusSpan.textContent = 'Selecciona un archivo EPUB.';
-            statusSpan.style.color = 'crimson';
-            return;
-        }
-        statusSpan.textContent = 'Subiendo...';
-        statusSpan.style.color = '#7A89D1';
-        const formData = new FormData();
-        formData.append('epub', file);
-        try {
-            const res = await fetch(`${API_BASE}/upload-epub`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            if (!res.ok) {
-                statusSpan.textContent = 'Error: ' + (data.error || 'Error al subir EPUB');
-                statusSpan.style.color = 'crimson';
-            } else {
-                statusSpan.textContent = '¡EPUB subido!';
-                statusSpan.style.color = 'green';
-                epubFileInput.value = '';
-                loadNovels();
-            }
-        } catch (err) {
-            statusSpan.textContent = 'Error de red al subir.';
-            statusSpan.style.color = 'crimson';
-        }
-    };
-
-    async function loadNovels() {
-        novelList.innerHTML = '<div style="color:#b0b5d6;">Cargando novelas...</div>';
-        try {
-            const res = await fetch(`${API_BASE}/novels`);
-            const novels = await res.json();
-            if (!novels.length) {
-                novelList.innerHTML = '<div style="color:#b0b5d6;">No hay novelas subidas aún.</div>';
-                return;
-            }
-            novelList.innerHTML = '';
-            novels.forEach(novel => {
-                const card = document.createElement('div');
-                card.className = 'novel-card';
-                card.innerHTML = `
-                    <div>
-                        <div class="novel-title">${novel.title}</div>
-                        <div class="novel-author">por ${novel.author}</div>
-                    </div>
-                    <button class="read-btn" onclick="window.location='novel-detail.html?id=${novel.id}'">Leer</button>
-                `;
-                novelList.appendChild(card);
-            });
-        } catch (err) {
-            novelList.innerHTML = '<div style="color:crimson;">Error al cargar novelas.</div>';
-        }
-    }
-    loadNovels();
-    </script>
+    <!-- Vinculamos el archivo JavaScript externo al final del body -->
+    <script src="js/library.js"></script>
 </body>
 </html>
