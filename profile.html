@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Lumina</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Nunito font is imported in style.css via @import -->
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><a href="index.html">Lumina</a></h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html#hero">Inicio</a></li>
+                    <li><a href="index.html#novels">Novelas</a></li>
+                    <li><a href="index.html#genres">Géneros</a></li>
+                    <li><a href="#" class="active-nav">Mi Perfil</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons-header">
+                <a href="login.html" class="btn btn-login-header">Log In</a>
+                <a href="signup.html" class="btn btn-signup-header">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="profile-page">
+        <section class="user-info-header content-section">
+            <div class="user-avatar-container">
+                <img src="https://source.unsplash.com/150x150/?celestial,abstract,avatar" alt="Avatar de Usuario" class="user-avatar">
+            </div>
+            <div class="user-details">
+                <h2>ViajeroEstelar99</h2> <!-- Placeholder Username -->
+                <p class="user-email">viajero.estelar99@lumina.com</p>
+                <p class="user-join-date">Miembro desde: Nebulosa de Andrómeda (Fecha Estelar 2024.10.27)</p>
+                <a href="#logout" class="btn btn-secondary btn-logout">Cerrar Sesión Cósmica</a>
+            </div>
+        </section>
+
+        <section class="profile-content content-section">
+            <div class="profile-tabs">
+                <button class="tab-link active" data-tab="my-library">Mi Biblioteca Estelar</button>
+                <button class="tab-link" data-tab="my-activity">Mi Actividad Cósmica</button>
+                <button class="tab-link" data-tab="account-settings">Ajustes de Navegación</button>
+            </div>
+
+            <div id="my-library" class="tab-content active">
+                <h3>Novelas Guardadas y Favoritas</h3>
+                <p class="coming-soon-placeholder">Tu colección personal de viajes intergalácticos y sagas místicas aparecerá aquí. (Próximamente)</p>
+            </div>
+
+            <div id="my-activity" class="tab-content">
+                <h3>Mis Comentarios y Reseñas</h3>
+                <p>Un registro de tus contribuciones a la comunidad Lumina. (Contenido próximamente)</p>
+                <div class="activity-item">
+                    <p>Comentaste en "El Último Guardián Estelar": "¡Increíble!" - <em>Hace 2 días</em></p>
+                </div>
+            </div>
+
+            <div id="account-settings" class="tab-content">
+                <h3>Configuración de la Cuenta</h3>
+                <p>Modifica tus datos personales, preferencias de notificación y más. (Contenido próximamente)</p>
+                <form id="account-settings-form">
+                    <div class="form-group">
+                        <label for="profile-username">Cambiar Nombre de Usuario:</label>
+                        <input type="text" id="profile-username" name="profile-username" value="ViajeroEstelar99">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-email">Cambiar Correo Electrónico:</label>
+                        <input type="email" id="profile-email" name="profile-email" value="viajero.estelar99@lumina.com">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Lumina. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/library.js"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor de Novela - Lumina</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f6f7fb 0%, #eaf0fa 100%);
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .viewer-container {
+            max-width: 900px;
+            margin: 48px auto 32px auto;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 8px 40px #7A89D144;
+            padding: 40px 32px 32px 32px;
+            position: relative;
+            transition: background 0.3s;
+        }
+        .novel-meta {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .novel-title {
+            font-size: 2.3em;
+            color: #7A89D1;
+            margin-bottom: 0;
+            font-weight: 800;
+        }
+        .novel-author {
+            color: #6c6f93;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        .chapter-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 28px;
+        }
+        .chapter-btn {
+            background: #eaf0fa;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 22px;
+            cursor: pointer;
+            color: #7A89D1;
+            font-weight: 700;
+            font-size: 1em;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px #7A89D122;
+        }
+        .chapter-btn.active, .chapter-btn:hover {
+            background: #7A89D1;
+            color: #fff;
+            box-shadow: 0 4px 16px #7A89D144;
+        }
+        .chapter-content {
+            background: #f9faff;
+            border-radius: 16px;
+            padding: 32px 24px;
+            min-height: 320px;
+            box-shadow: 0 2px 12px #7A89D122;
+            margin-bottom: 24px;
+            font-size: 1.18em;
+            line-height: 1.7;
+            color: #23243a;
+            transition: background 0.3s, color 0.3s;
+            animation: fadeIn 0.4s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: none; }
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            background: #eaf0fa;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.3em;
+            color: #7A89D1;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .theme-toggle:hover {
+            background: #7A89D1;
+            color: #fff;
+        }
+        .dark-mode {
+            background: linear-gradient(135deg, #23243a 0%, #35376a 100%);
+            color: #eaf0fa;
+        }
+        .dark-mode .viewer-container {
+            background: #2e3050;
+        }
+        .dark-mode .chapter-content {
+            background: #23243a;
+            color: #eaf0fa;
+        }
+        .dark-mode .chapter-btn {
+            background: #35376a;
+            color: #b0b5d6;
+        }
+        .dark-mode .chapter-btn.active, .dark-mode .chapter-btn:hover {
+            background: #7A89D1;
+            color: #fff;
+        }
+        @media (max-width: 700px) {
+            .viewer-container { padding: 18px 4vw; }
+            .chapter-content { padding: 18px 2vw; }
+        }
+    </style>
+</head>
+<body>
+    <div class="viewer-container">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+        <div class="novel-meta">
+            <h1 class="novel-title" id="novel-title">Cargando...</h1>
+            <div class="novel-author" id="novel-author"></div>
+        </div>
+        <div class="chapter-list" id="chapter-list"></div>
+        <div class="chapter-content" id="chapter-content">Selecciona un capítulo para leer.</div>
+    </div>
+    <script>
+    const API_BASE = 'http://localhost:5000';
+    function getNovelId() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('id');
+    }
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const btn = document.querySelector('.theme-toggle');
+        btn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    }
+    async function loadNovel() {
+        const novelId = getNovelId();
+        if (!novelId) {
+            document.getElementById('novel-title').textContent = 'No se encontró la novela.';
+            return;
+        }
+        const res = await fetch(`${API_BASE}/novel/${novelId}`);
+        if (!res.ok) {
+            document.getElementById('novel-title').textContent = 'Error al cargar la novela.';
+            return;
+        }
+        const meta = await res.json();
+        document.getElementById('novel-title').textContent = meta.title;
+        document.getElementById('novel-author').textContent = 'Por: ' + meta.author;
+        const chapterList = document.getElementById('chapter-list');
+        chapterList.innerHTML = '';
+        meta.chapters.forEach((ch, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'chapter-btn';
+            btn.textContent = ch.title || `Capítulo ${idx+1}`;
+            btn.onclick = () => loadChapter(ch.path, btn);
+            chapterList.appendChild(btn);
+        });
+    }
+    async function loadChapter(path, btn) {
+        document.querySelectorAll('.chapter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const res = await fetch(`http://localhost:5000${path}`);
+        if (!res.ok) {
+            document.getElementById('chapter-content').innerHTML = '<span style="color:crimson;">Error al cargar el capítulo.</span>';
+            return;
+        }
+        const fullHtml = await res.text();
+        
+        // Crear un parser para extraer solo el contenido del body
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(fullHtml, 'text/html');
+        const bodyContent = doc.querySelector('body')?.innerHTML || '';
+        
+        document.getElementById('chapter-content').innerHTML = bodyContent;
+    }
+    loadNovel();
+    </script>
+</body>
+</html>

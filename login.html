@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Lumina</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1><a href="index.html" style="text-decoration: none; color: inherit;">Lumina</a></h1>
+        <nav>
+            <ul>
+                <li><a href="index.html#hero">Inicio</a></li>
+                <li><a href="index.html#novels">Novelas</a></li>
+                <li><a href="index.html#genres">Géneros</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="auth-page">
+        <section class="auth-form-container content-section">
+            <h2>Iniciar Sesión en Lumina</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email-login">Correo Electrónico o Usuario</label>
+                    <input type="text" id="email-login" name="email-login" required>
+                </div>
+                <div class="form-group">
+                    <label for="password-login">Contraseña</label>
+                    <input type="password" id="password-login" name="password-login" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-full-width">Entrar en la Órbita</button>
+                </div>
+            </form>
+            <p class="auth-switch">¿No tienes una cuenta? <a href="signup.html">Regístrate aquí</a>.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Lumina. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

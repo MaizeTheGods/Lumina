@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta - Lumina</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1><a href="index.html" style="text-decoration: none; color: inherit;">Lumina</a></h1>
+        <nav>
+            <ul>
+                <li><a href="index.html#hero">Inicio</a></li>
+                <li><a href="index.html#novels">Novelas</a></li>
+                <li><a href="index.html#genres">Géneros</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="auth-page">
+        <section class="auth-form-container content-section">
+            <h2>Crea tu Constelación en Lumina</h2>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="username-signup">Nombre de Usuario</label>
+                    <input type="text" id="username-signup" name="username-signup" required>
+                </div>
+                <div class="form-group">
+                    <label for="email-signup">Correo Electrónico</label>
+                    <input type="email" id="email-signup" name="email-signup" required>
+                </div>
+                <div class="form-group">
+                    <label for="password-signup">Contraseña</label>
+                    <input type="password" id="password-signup" name="password-signup" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password-signup">Confirmar Contraseña</label>
+                    <input type="password" id="confirm-password-signup" name="confirm-password-signup" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-full-width">Unirse al Cosmos</button>
+                </div>
+            </form>
+            <p class="auth-switch">¿Ya tienes una cuenta? <a href="login.html">Inicia sesión aquí</a>.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Lumina. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
