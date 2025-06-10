@@ -1,86 +1,155 @@
-/* Modern Game UI Inspired Theme (e.g., Genshin Impact) */
+/* Modern Lumina Library UI - Inspired by elegant reading interfaces */
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Crimson+Text:wght@400;600&display=swap');
 
 :root {
-    --font-main: 'Nunito', sans-serif;
+    /* Fonts */
+    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-reading: 'Crimson Text', Georgia, serif;
 
-    --color-bg-light: #F7F9FC; /* Very light blue/gray, almost white */
-    --color-bg-panel: #FFFFFF;
-    --color-primary: #7A89D1; /* Soft, muted blue/lavender from reference */
-    --color-primary-light: #A0AFF0; /* Lighter shade for hovers/accents */
-    --color-primary-dark: #5F6BAA; /* Darker shade for active states/text */
-    --color-secondary: #88D1E6; /* A complementary soft cyan/blue */
-    --color-text-dark: #333B52; /* Dark blue-gray for main text */
-    --color-text-light: #6B7A99; /* Lighter blue-gray for secondary text */
-    --color-border: #E1E7F2; /* Soft border color */
-    --color-shadow: rgba(122, 137, 209, 0.15); /* Soft shadow based on primary color */
-    --color-white: #FFFFFF;
-    --color-login-button: #6C7EE0; /* Specific blue for login button */
-    --color-signup-button-bg: #FFFFFF;
-    --color-signup-button-text: var(--color-primary-dark);
-    --color-signup-button-border: var(--color-primary);
-
-    --border-radius-small: 6px;
-    --border-radius-medium: 12px;
-    --border-radius-large: 16px;
-    --header-height: 70px;
+    /* Light Theme Colors */
+    --color-bg-primary: #fafbfc;
+    --color-bg-secondary: #ffffff;
+    --color-bg-elevated: #ffffff;
+    --color-surface: #f8f9fa;
+    --color-surface-hover: #f1f3f4;
+    
+    /* Brand Colors */
+    --color-primary: #757575;
+    --color-primary-hover: #616161;
+    --color-primary-light: #f5f5f5;
+    --color-secondary: #9e9e9e;
+    --color-accent: #bdbdbd;
+    
+    /* Text Colors */
+    --color-text-primary: #1f2937;
+    --color-text-secondary: #6b7280;
+    --color-text-tertiary: #9ca3af;
+    --color-text-inverse: #ffffff;
+    
+    /* Border & Shadow */
+    --color-border: #e5e7eb;
+    --color-border-strong: #d1d5db;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    
+    /* Spacing & Sizing */
+    --border-radius-sm: 6px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 16px;
+    --border-radius-2xl: 20px;
+    --header-height: 72px;
+    --sidebar-width: 320px;
+    
+    /* Transitions */
+    --transition-fast: 150ms ease-out;
+    --transition-normal: 250ms ease-out;
+    --transition-slow: 350ms ease-out;
 }
 
-/* General Styles */
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-bg-primary: #0f172a;
+        --color-bg-secondary: #1e293b;
+        --color-bg-elevated: #334155;
+        --color-surface: #1e293b;
+        --color-surface-hover: #334155;
+        
+        --color-text-primary: #f1f5f9;
+        --color-text-secondary: #cbd5e1;
+        --color-text-tertiary: #94a3b8;
+        
+        --color-border: #334155;
+        --color-border-strong: #475569;
+        
+        --color-primary-light: #424242;
+    }
+}
+
+/* Base Styles */
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: var(--font-main);
+    font-family: var(--font-ui);
     margin: 0;
     padding: 0;
-    background-color: var(--color-bg-light);
-    color: var(--color-text-dark);
+    background-color: #f5f5f5; /* Fondo gris claro */
+    color: var(--color-text-primary);
     line-height: 1.6;
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
 }
 
 main {
     padding-top: var(--header-height);
+    min-height: calc(100vh - var(--header-height));
+    background-color: #ffffff;
 }
 
 .container {
-    max-width: 1280px; /* Wider container for this style */
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 24px;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+    color: var(--color-text-primary);
+}
+
+.text-reading {
+    font-family: var(--font-reading);
 }
 
 /* Header & Navigation */
 header {
-    background-color: var(--color-bg-panel);
+    background-color: var(--color-bg-secondary);
+    backdrop-filter: blur(12px);
     height: var(--header-height);
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 1000;
-    display: flex;
-    align-items: center;
-    padding: 0 30px;
-    box-shadow: 0 2px 10px var(--color-shadow);
     border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
 }
 
 .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    max-width: 1320px; /* Max width for header content */
+    height: 100%;
+    max-width: 1320px;
     margin: 0 auto;
+    padding: 0 24px;
 }
 
 header h1 a {
-    font-size: 1.8em; /* Adjusted size */
+    font-size: 1.75rem;
     font-weight: 800;
-    color: var(--color-primary-dark);
+    background: linear-gradient(135deg, #757575 0%, #9e9e9e 50%, #bdbdbd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     text-decoration: none;
-    letter-spacing: 0.5px;
+    letter-spacing: -0.025em;
+    transition: var(--transition-fast);
+}
+
+header h1 a:hover {
+    transform: scale(1.02);
 }
 
 nav ul {
@@ -89,784 +158,539 @@ nav ul {
     margin: 0;
     display: flex;
     align-items: center;
-}
-
-nav ul li {
-    margin-left: 25px;
+    gap: 8px;
 }
 
 nav ul li a {
-    color: var(--color-text-light);
+    color: var(--color-text-secondary);
     text-decoration: none;
-    font-size: 0.95em;
-    outline: none;
-    transition: box-shadow 0.16s, background 0.2s, color 0.18s, transform 0.1s;
-}
-nav ul li a:focus, nav ul li a:active {
-    color: var(--color-primary-dark);
-    box-shadow: 0 0 0 2px #7A89D1, 0 4px 16px #7A89D144;
-    background: #eaf0fa;
-    border-radius: 8px;
-}
-
-:focus {
-    outline: 2.5px solid #5F6BAA;
-    outline-offset: 2px;
-}
-.novel-card:focus-within, .novel-card:focus {
-    box-shadow: 0 0 0 3px #b7b8f7, 0 6px 24px #7A89D133;
-    z-index: 2;
-}
-.btn, .tab-btn, .add-to-library-btn, .btn-danger, .logout-btn, a {
-    outline: none;
-    transition: box-shadow 0.16s, background 0.2s, color 0.18s, transform 0.1s;
-}
-.btn:focus, .tab-btn:focus, .add-to-library-btn:focus, .btn-danger:focus, .logout-btn:focus, a:focus {
-    box-shadow: 0 0 0 2px #7A89D1, 0 4px 16px #7A89D144;
-}
-.modal[aria-hidden="true"] {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: var(--border-radius-md);
+    transition: var(--transition-fast);
+    position: relative;
 }
 
 nav ul li a:hover,
+nav ul li a:focus {
+    color: var(--color-text-primary);
+    background-color: var(--color-surface-hover);
+}
+
 nav ul li a.active-nav {
-    color: var(--color-primary-dark);
-    background-color: rgba(122, 137, 209, 0.1); /* Light primary bg on hover */
-}
-
-.auth-buttons-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-left: 30px; /* Space from nav links */
-}
-
-.btn-login-header {
-    background-color: var(--color-login-button);
-    color: var(--color-white);
-    padding: 9px 20px; /* Standardized padding */
-    border-radius: var(--border-radius-medium);
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 0.9em;
-    transition: background-color 0.2s ease;
-    border: none;
-    box-sizing: border-box;
-}
-
-.btn-login-header:hover {
-    background-color: var(--color-primary-dark);
-}
-
-.btn-signup-header {
-    background-color: var(--color-signup-button-bg);
-    color: var(--color-signup-button-text);
-    padding: 9px 20px; /* Standardized padding */
-    border-radius: var(--border-radius-medium);
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 0.9em;
-    border: 1.5px solid var(--color-signup-button-border);
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-    box-sizing: border-box;
-}
-
-.btn-signup-header:hover {
+    color: var(--color-primary);
     background-color: var(--color-primary-light);
-    color: var(--color-white);
-    border-color: var(--color-primary-light);
 }
 
-/* Hero Section - Styled like the reference banner */
-.hero {
-    background-color: var(--color-primary);
-    border-radius: var(--border-radius-large);
-    margin: 30px auto;
-    padding: 40px;
-    color: var(--color-white);
-    display: flex;
+/* Focus States */
+:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.focus-ring:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary), 0 0 0 4px var(--color-primary-light);
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between; /* If there's an image like in ref */
-    min-height: auto; /* Override previous min-height */
-    box-shadow: 0 8px 25px var(--color-shadow);
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1;
+    border: none;
+    border-radius: var(--border-radius-md);
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-surface-hover);
+    border-color: var(--color-border-strong);
+}
+
+.btn-ghost {
+    background-color: transparent;
+    color: var(--color-text-secondary);
+}
+
+.btn-ghost:hover {
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-primary);
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, #9e9e9e 0%, #757575 50%, #616161 100%);
+    border-radius: var(--border-radius-2xl);
+    margin: 32px auto 64px; /* Más espacio en la parte inferior */
+    padding: 64px 48px;
+    color: var(--color-text-inverse);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
     max-width: 1280px;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
 }
 
 .hero-content {
-    max-width: 60%; /* Adjust as needed */
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
 }
 
 .hero-content h2 {
-    font-size: 2.8em;
+    font-size: 3.5rem;
     font-weight: 800;
-    margin-top: 0;
-    margin-bottom: 15px;
-    line-height: 1.2;
+    margin-bottom: 24px;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
 }
 
 .hero-content p {
-    font-size: 1.1em;
+    font-size: 1.25rem;
     font-weight: 400;
-    margin-bottom: 25px;
+    margin-bottom: 32px;
     opacity: 0.9;
-    max-width: 500px;
+    line-height: 1.6;
 }
 
 .btn-hero {
-    background-color: var(--color-white);
-    color: var(--color-primary-dark);
-    padding: 12px 30px;
-    border-radius: var(--border-radius-medium);
-    text-decoration: none;
+    background-color: var(--color-text-inverse);
+    color: var(--color-primary);
+    padding: 16px 32px;
+    font-size: 1.1rem;
     font-weight: 700;
-    font-size: 1em;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-    display: inline-block;
-    border: none;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
 }
 
 .btn-hero:hover {
-    background-color: var(--color-bg-light);
     transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
 }
 
-/* General Content Sections & Panels */
+/* Content Sections */
 .content-section {
-    background-color: var(--color-bg-panel);
-    padding: 30px;
-    border-radius: var(--border-radius-large);
-    margin: 30px auto;
-    box-shadow: 0 5px 20px var(--color-shadow);
+    background-color: var(--color-bg-secondary);
+    padding: 48px 40px;
+    border-radius: var(--border-radius-2xl);
+    margin: 32px auto 64px; /* Más espacio en la parte inferior */
+    box-shadow: var(--shadow-lg);
     max-width: 1280px;
+    border: 1px solid var(--color-border);
 }
 
 .content-section > h2 {
-    font-size: 1.8em; /* Slightly larger */
-    color: var(--color-primary-dark); /* Consistent panel title color */
-    margin-top: 0;
-    margin-bottom: 20px;
-    text-align: center; /* Centered titles for panels */
-    font-weight: 700; /* Keep titles bold */
-    /* padding-bottom and border-bottom removed to simplify panel title style */
-    /* position: static; and transform: none; are default, can be removed if not overriding anything specific */
-}
-.content-section > h2::after { /* EPUB Reader Panel Styles */
-    display: none;
+    font-size: 2rem;
+    color: var(--color-text-primary);
+    margin-bottom: 32px;
+    text-align: center;
+    font-weight: 700;
+    position: relative;
 }
 
+.content-section > h2::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    border-radius: 2px;
+}
+
+/* Upload Container */
+.upload-container {
+    background-color: var(--color-surface);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--border-radius-xl);
+    padding: 32px;
+    text-align: center;
+    margin-bottom: 40px;
+    transition: var(--transition-normal);
+}
+
+.upload-container:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+}
+
+#upload-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+#file-name-display {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--color-border);
+    min-width: 200px;
+}
+
+.status-msg {
+    margin-top: 16px;
+    padding: 12px 20px;
+    border-radius: var(--border-radius-md);
+    font-weight: 500;
+    text-align: center;
+}
+
+.status-msg.success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.status-msg.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+/* Library Grid */
+.library-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 32px;
+    margin-top: 32px;
+}
+
+.novel-card {
+    background: var(--color-bg-secondary);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: var(--transition-normal);
+    cursor: pointer;
+    border: 1px solid var(--color-border);
+    position: relative;
+}
+
+.novel-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--color-primary);
+}
+
+.novel-card:focus-within {
+    box-shadow: 0 0 0 2px var(--color-primary), var(--shadow-xl);
+}
+
+.novel-cover {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    background: linear-gradient(135deg, var(--color-surface), var(--color-border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-tertiary);
+    font-size: 3rem;
+}
+
+.novel-info {
+    padding: 24px;
+}
+
+.novel-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.novel-author {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 12px;
+}
+
+.novel-genre {
+    display: inline-block;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: var(--border-radius-md);
+    margin-top: 8px;
+}
+
+.novel-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    border-radius: var(--border-radius-sm);
+}
+
+/* EPUB Reader Panel */
 #epub-reader-fade {
-    animation: fadeInPanel 0.3s;
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(30, 36, 60, 0.77);
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(8px);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
 }
 
 .epub-reader-panel-content {
-    background: var(--color-bg-panel);
-    border-radius: 22px;
-    box-shadow: 0 8px 40px var(--color-shadow);
+    background: var(--color-bg-secondary);
+    border-radius: var(--border-radius-2xl);
+    box-shadow: var(--shadow-xl);
     max-width: 90vw;
     max-height: 90vh;
-    width: 700px; /* Slightly wider */
-    height: 85vh; /* Slightly taller */
+    width: 800px;
+    height: 85vh;
     display: flex;
     flex-direction: column;
-    outline: 0;
+    border: 1px solid var(--color-border);
+    overflow: hidden;
 }
 
 .epub-reader-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 22px 10px 22px; /* Adjusted padding */
+    padding: 20px 24px;
     border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
 }
 
 .epub-reader-header h3 {
     margin: 0;
-    font-size: 1.2em;
-    color: var(--color-primary-dark);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: calc(100% - 50px); /* Ensure space for close button */
+    font-size: 1.25rem;
+    color: var(--color-text-primary);
+    font-weight: 700;
 }
 
 #close-epub-reader {
     background: none;
     border: none;
-    font-size: 1.8em;
+    font-size: 1.5rem;
     cursor: pointer;
-    color: var(--color-primary);
-    padding: 0 5px; /* Easier to click */
+    color: var(--color-text-secondary);
+    padding: 8px;
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition-fast);
 }
-#close-epub-reader:hover, 
-#close-epub-reader:focus {
-    color: var(--color-primary-dark);
+
+#close-epub-reader:hover {
+    color: var(--color-text-primary);
+    background-color: var(--color-surface-hover);
 }
 
 .epub-reader-navigation {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 22px;
-    gap: 10px;
+    padding: 16px 24px;
+    gap: 16px;
     border-bottom: 1px solid var(--color-border);
-}
-
-.epub-reader-navigation .btn {
-    border-radius: var(--border-radius-small);
-    padding: 6px 14px;
-    font-size: 0.9em;
-}
-.epub-reader-navigation .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.epub-reader-navigation #epub-current-label {
-    color: var(--color-text-light);
-    font-size: 0.9em;
-    text-align: center;
-    flex-grow: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    background: var(--color-surface);
 }
 
 .epub-reader-controls {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 22px;
-    background-color: #f8fafd; /* Light bg for control bar */
-    gap: 20px;
+    padding: 16px 24px;
+    background: var(--color-surface);
+    gap: 24px;
     border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap;
 }
 
 .epub-control-group {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
-.epub-control-group label,
-.epub-control-group .epub-font-label {
-    font-size: 0.9em;
-    color: var(--color-primary-dark);
-    margin-right: 4px;
+.epub-control-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
 }
 
 #epub-theme-select {
-    padding: 6px 10px;
-    border-radius: var(--border-radius-small);
-    background-color: var(--color-white);
+    padding: 8px 12px;
+    border-radius: var(--border-radius-sm);
+    background-color: var(--color-bg-secondary);
     border: 1px solid var(--color-border);
-    color: var(--color-text-dark);
-    font-family: var(--font-main);
-    font-size: 0.9em;
+    color: var(--color-text-primary);
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+    transition: var(--transition-fast);
 }
+
 #epub-theme-select:focus {
-     border-color: var(--color-primary);
-     box-shadow: 0 0 0 2px var(--color-primary-light);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.epub-font-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .epub-font-controls button {
-    padding: 5px 10px;
-    border-radius: var(--border-radius-small);
-    min-width: 35px; 
-    font-size: 0.9em;
-    line-height: 1.2;
+    padding: 8px 12px;
+    border-radius: var(--border-radius-sm);
+    min-width: 40px;
+    font-size: 0.875rem;
+    font-weight: 600;
 }
 
 #epub-font-size-display {
-    font-size: 0.9em;
-    color: var(--color-text-dark);
-    min-width: 45px; 
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+    min-width: 50px;
     text-align: center;
-    padding: 4px 8px;
-    background-color: var(--color-white);
-    border-radius: var(--border-radius-small);
+    padding: 8px 12px;
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--border-radius-sm);
     border: 1px solid var(--color-border);
-    line-height: 1.4; 
+    font-weight: 600;
 }
 
 #epubjs-viewer {
     flex: 1;
-    overflow: hidden; /* Let Epub.js handle scrolling within its iframe */
-    margin: 0;
-    border-bottom-left-radius: 22px; /* Match panel rounding */
-    border-bottom-right-radius: 22px; /* Match panel rounding */
-    background: var(--color-white); 
-    transition: background-color 0.3s, color 0.3s;
-}
-
-/* Ensure buttons inside controls also get focus styles */
-.epub-reader-controls .btn:focus,
-.epub-reader-navigation .btn:focus,
-#close-epub-reader:focus {
-    outline: 2px solid var(--color-primary-light);
-    outline-offset: 1px;
-    box-shadow: 0 0 5px var(--color-primary-light);
-}
-
-.content-section p {
-    font-size: 1em;
-    color: var(--color-text-light);
-    line-height: 1.7;
-    margin-bottom: 15px;
-    /* Ensure paragraphs within sections also align with the overall text flow */
-    text-align: left; /* Or 'center' if preferred for short descriptions */
-}
-
-/* Novel Grid & Cards */
-.novel-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 28px;
-    margin-top: 25px;
-    margin-bottom: 10px;
-}
-
-.novel-card {
-    background: var(--color-bg-panel);
-    border-radius: var(--border-radius-large);
-    box-shadow: 0 4px 18px var(--color-shadow);
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1);
-    cursor: pointer;
-    border: 1.5px solid var(--color-border);
+    background: var(--color-bg-secondary);
 }
 
-.novel-card:hover {
-    transform: translateY(-8px) scale(1.025);
-    box-shadow: 0 8px 24px 0 rgba(122,137,209,0.22);
-    border-color: var(--color-primary-light);
-}
-
-.novel-cover {
-    width: 100%;
-    height: 260px;
-    object-fit: cover;
-    border-top-left-radius: var(--border-radius-large);
-    border-top-right-radius: var(--border-radius-large);
-    background: #eaf0fa;
-}
-
-.novel-info {
-    padding: 18px 16px 16px 16px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-}
-
-.novel-title {
-    font-size: 1.15em;
-    font-weight: 700;
-    color: var(--color-primary-dark);
-    margin: 0 0 2px 0;
-}
-
-.novel-author {
-    font-size: 0.97em;
-    color: var(--color-text-light);
-    margin: 0 0 4px 0;
-}
-
-.novel-genre {
-    display: inline-block;
-    background: var(--color-primary-light);
-    color: var(--color-primary-dark);
-    font-size: 0.88em;
-    font-weight: 600;
-    padding: 4px 12px;
-    border-radius: var(--border-radius-medium);
-    box-shadow: 0 1px 6px rgba(122,137,209,0.08);
-    margin-top: 2px;
-}
-
-/* Genre Tags as Chips */
-.genre-tag {
-    display: inline-block;
-    background: var(--color-bg-panel);
-    color: var(--color-primary-dark);
-    border-radius: 18px;
-    padding: 7px 18px;
-    font-size: 1em;
-    font-weight: 700;
-    margin: 7px 10px 7px 0;
-    box-shadow: 0 2px 10px var(--color-shadow);
-    border: 1.5px solid var(--color-primary-light);
-    transition: background 0.18s, color 0.18s, box-shadow 0.18s;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.genre-tag:hover, .genre-tag:focus {
-    background: var(--color-primary);
-    color: var(--color-white);
-    box-shadow: 0 4px 16px 0 rgba(122,137,209,0.18);
-    border-color: var(--color-primary);
-}
-
-.genre-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 0;
-    justify-content: center;
-    margin-top: 18px;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 900px) {
-    .novel-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-    .novel-cover {
-        height: 200px;
-    }
-}
-@media (max-width: 600px) {
-    .content-section {
-        padding: 15px;
-        margin: 18px 3px;
-    }
-    .novel-grid {
-        gap: 16px;
-    }
-    .novel-card {
-        border-radius: var(--border-radius-medium);
-    }
-    .novel-cover {
-        border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
-        height: 140px;
-    }
-    .novel-info {
-        padding: 10px 7px 10px 7px;
-    }
-    .genre-tag {
-        font-size: 0.97em;
-        padding: 6px 13px;
-    }
-}
-
-/* Profile Page Styles */
+/* Profile Styles */
 .profile-page {
-    margin-top: 35px;
-    margin-bottom: 35px;
+    margin: 32px auto;
 }
 
 .user-info-header {
     display: flex;
     align-items: center;
     gap: 32px;
-    background: var(--color-bg-panel);
-    border-radius: var(--border-radius-large);
-    box-shadow: 0 4px 18px var(--color-shadow);
-    padding: 32px 36px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--border-radius-2xl);
+    box-shadow: var(--shadow-lg);
+    padding: 40px;
     margin-bottom: 32px;
-    max-width: 700px;
+    max-width: 800px;
     margin-left: auto;
     margin-right: auto;
-    flex-wrap: wrap;
+    border: 1px solid var(--color-border);
 }
-.user-avatar-container {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+
 .user-avatar {
     width: 120px;
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--color-primary-light);
-    box-shadow: 0 2px 10px var(--color-shadow);
-    background: #eaf0fa;
+    border: 4px solid var(--color-primary-light);
+    box-shadow: var(--shadow-md);
 }
-.user-details {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-}
+
 .user-details h2 {
-    font-size: 1.5em;
-    color: var(--color-primary-dark);
-    margin: 0 0 2px 0;
+    font-size: 1.75rem;
+    color: var(--color-text-primary);
+    margin-bottom: 8px;
     font-weight: 800;
 }
+
 .user-email, .user-join-date {
-    font-size: 1em;
-    color: var(--color-text-light);
-    margin: 0;
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 4px;
 }
+
 .btn-logout {
-    margin-top: 14px;
+    margin-top: 16px;
     background: var(--color-secondary);
-    color: var(--color-white);
-    border-radius: var(--border-radius-medium);
-    font-weight: 700;
-    font-size: 1em;
-    padding: 10px 24px;
-    border: none;
-    box-shadow: 0 2px 8px var(--color-shadow);
-    transition: background 0.18s, color 0.18s;
-    cursor: pointer;
-    transition: background 0.18s, color 0.18s, transform 0.1s;
+    color: var(--color-text-inverse);
 }
+
 .btn-logout:hover {
-    background: var(--color-primary-dark);
-    color: var(--color-white);
-    transform: translateY(-2px) scale(1.03);
-}
-
-.profile-content {
-    background: var(--color-bg-panel);
-    border-radius: var(--border-radius-large);
-    box-shadow: 0 4px 18px var(--color-shadow);
-    padding: 28px 24px 22px 24px;
-    max-width: 850px;
-    margin: 0 auto;
-}
-.profile-tabs {
-    display: flex;
-    gap: 18px;
-    margin-bottom: 22px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-.tab-link {
-    background: var(--color-primary-light);
-    color: var(--color-primary-dark);
-    border: none;
-    border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
-    padding: 10px 24px;
-    font-size: 1em;
-    font-weight: 700;
-    box-shadow: 0 2px 10px var(--color-shadow);
-    cursor: pointer;
-    transition: background 0.18s, color 0.18s, box-shadow 0.18s;
-    outline: none;
-}
-.tab-link.active, .tab-link:focus {
     background: var(--color-primary);
-    color: var(--color-white);
-    box-shadow: 0 4px 16px 0 rgba(122,137,209,0.18);
-}
-.tab-content {
-    display: none;
-    animation: fadeIn 0.6s;
-    background: none;
-    border-radius: var(--border-radius-large);
-    margin-top: 0;
-    padding: 0;
-}
-.tab-content.active {
-    display: block;
-}
-.activity-item {
-    background: var(--color-bg-light);
-    border-radius: var(--border-radius-medium);
-    padding: 12px 16px;
-    margin-top: 10px;
-    box-shadow: 0 2px 8px var(--color-shadow);
-    color: var(--color-text-dark);
-}
-
-/* Profile Form Styles */
-#account-settings-form {
-    margin-top: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-}
-.form-group label {
-    font-size: 1em;
-    font-weight: 600;
-    color: var(--color-primary-dark);
-}
-.form-group input[type="text"],
-.form-group input[type="email"] {
-    padding: 10px 14px;
-    border-radius: var(--border-radius-medium);
-    border: 1.5px solid var(--color-border);
-    font-size: 1em;
-    background: var(--color-bg-light);
-    color: var(--color-text-dark);
-    transition: border 0.18s, box-shadow 0.18s;
-    outline: none;
-}
-.form-group input[type="text"]:focus,
-.form-group input[type="email"]:focus {
-    border: 1.5px solid var(--color-primary);
-    box-shadow: 0 0 6px 0 var(--color-primary-light);
-}
-
-@media (max-width: 900px) {
-    .user-info-header {
-        flex-direction: column;
-        align-items: center;
-        gap: 18px;
-        padding: 22px 10px;
-    }
-    .profile-content {
-        padding: 14px 4px 10px 4px;
-    }
-    .profile-tabs {
-        gap: 8px;
-    }
-    .tab-link {
-        padding: 8px 13px;
-        font-size: 0.97em;
-    }
-}
-
-@media (max-width: 600px) {
-    .user-info-header {
-        padding: 12px 2px;
-        gap: 10px;
-    }
-    .user-avatar {
-        width: 80px;
-        height: 80px;
-    }
-    .profile-content {
-        padding: 8px 0 6px 0;
-    }
-    .tab-link {
-        padding: 6px 7px;
-        font-size: 0.93em;
-    }
-}
-
-/* Placeholder Styles */
-.coming-soon-placeholder {
-    font-size: 1.1em; /* Slightly larger text */
-    color: var(--color-white);
-    text-align: center;
-    padding: 50px 30px;
-    background-color: var(--color-primary);
-    border-radius: var(--border-radius-large); /* Match other main panels */
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 5px 15px var(--color-shadow);
-}
-
-.coming-soon-placeholder::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        /* Smallest stars */
-        radial-gradient(circle, rgba(255,255,255,0.8) 0.5px, transparent 0.7px),
-        /* Medium stars */
-        radial-gradient(circle, rgba(255,255,255,0.7) 0.8px, transparent 1px),
-        /* Slightly larger stars */
-        radial-gradient(circle, rgba(255,255,255,0.6) 1.2px, transparent 1.5px);
-    background-repeat: repeat;
-    background-size: 50px 50px, 35px 35px, 60px 60px; /* Different densities */
-    background-position: 0 0, 15px 15px, 5px 30px; /* Offset positions */
-    opacity: 0.7; /* Base opacity slightly higher */
-    z-index: 0;
-    animation: twinkle 4s infinite ease-in-out;
-}
-
-.coming-soon-placeholder > * { /* If there's direct children like a <p> tag */
-    position: relative;
-    z-index: 1;
-}
-
-.novel-grid-placeholder p, .library-placeholder p {
-    font-size: 1em;
-    color: var(--color-text-light);
-    text-align: center;
-    padding: 40px 20px;
-    background-color: var(--color-bg-light);
-    border-radius: var(--border-radius-medium);
-    /* Optional: border: 1px solid var(--color-border); */
-}
-
-/* General Button Style (can be used for forms etc.) */
-.btn {
-    display: inline-block;
-    padding: 10px 25px;
-    text-decoration: none;
-    border-radius: var(--border-radius-medium);
-    font-weight: 700;
-    font-size: 0.95em;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border: none;
-    letter-spacing: 0.3px;
-    box-sizing: border-box; /* Added for consistent padding/border behavior */
-}
-
-.btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-}
-
-.btn-primary:hover {
-    background-color: var(--color-primary-dark);
-    transform: translateY(-1px);
-}
-
-.btn-secondary {
-    background-color: var(--color-bg-light);
-    color: var(--color-primary-dark);
-    border: 1px solid var(--color-border);
-}
-
-.btn-secondary:hover {
-    background-color: var(--color-border);
-    border-color: var(--color-border);
-}
-
-/* Footer */
-footer {
-    text-align: center;
-    padding: 30px 20px;
-    margin-top: 40px;
-    color: var(--color-text-light);
-    font-size: 0.9em;
-    background-color: transparent; /* Footer less prominent */
-    border-top: 1px solid var(--color-border);
+    transform: translateY(-2px);
 }
 
 /* Form Styles */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: var(--color-text-dark);
+    color: var(--color-text-primary);
     font-weight: 600;
-    font-size: 0.9em;
+    font-size: 0.875rem;
 }
 
 .form-group input[type="text"],
@@ -874,238 +698,129 @@ footer {
 .form-group input[type="password"],
 .form-group textarea {
     width: 100%;
-    padding: 12px 15px;
-    border-radius: var(--border-radius-medium);
+    padding: 12px 16px;
+    border-radius: var(--border-radius-md);
     border: 1px solid var(--color-border);
-    background-color: var(--color-bg-light); /* Slightly different bg for inputs */
-    color: var(--color-text-dark);
-    font-size: 0.95em;
-    box-sizing: border-box;
-    font-family: var(--font-main);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    font-family: var(--font-ui);
+    transition: var(--transition-fast);
 }
 
-.form-group input[type="text"]:focus,
-.form-group input[type="email"]:focus,
-.form-group input[type="password"]:focus,
+.form-group input:focus,
 .form-group textarea:focus {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(122, 137, 209, 0.2);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
     outline: none;
-    background-color: var(--color-white);
 }
 
-.form-group textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
-/* Auth Pages (Login/Signup) */
-.auth-page {
-    min-height: calc(100vh - var(--header-height));
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 20px;
-}
-
-.auth-form-container {
-    background-color: var(--color-bg-panel);
-    padding: 35px 40px;
-    border-radius: var(--border-radius-large);
-    box-shadow: 0 10px 30px var(--color-shadow);
-    width: 100%;
-    max-width: 420px;
+/* Loading & Placeholders */
+.loading-message {
     text-align: center;
+    padding: 64px 32px;
+    color: var(--color-text-secondary);
+    font-size: 1.125rem;
+    background: var(--color-surface);
+    border-radius: var(--border-radius-xl);
+    border: 2px dashed var(--color-border);
 }
 
-.auth-form-container h2 {
-    font-size: 1.8em;
-    font-weight: 700;
-    color: var(--color-text-dark);
-    margin-bottom: 30px;
-}
-
-.auth-form-container .btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 1em;
-    margin-top: 10px;
-}
-
-.auth-switch-link {
-    margin-top: 25px;
-    font-size: 0.9em;
-    color: var(--color-text-light);
-}
-
-.auth-switch-link a {
-    color: var(--color-primary-dark);
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.auth-switch-link a:hover {
-    text-decoration: underline;
-}
-
-/* Profile Page */
-.profile-page main.container {
-    margin-top: 30px;
-    margin-bottom: 30px;
-}
-
-.user-info-header {
-    display: flex;
-    align-items: center;
-    gap: 25px;
-    padding: 25px;
-    margin-bottom: 30px;
-    background-color: var(--color-bg-panel);
-    border-radius: var(--border-radius-large);
-    box-shadow: 0 5px 20px var(--color-shadow);
-}
-
-.user-avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--color-primary-light);
-}
-
-.user-details h2 {
-    font-size: 1.6em;
-    font-weight: 700;
-    color: var(--color-text-dark);
-    margin-top: 0;
-    margin-bottom: 5px;
-}
-
-.user-details .user-email, .user-details .user-join-date {
-    color: var(--color-text-light);
-    font-size: 0.9em;
-    margin-bottom: 5px;
-}
-
-.profile-tabs {
-    display: flex;
-    margin-bottom: 25px;
-    background-color: var(--color-bg-panel);
-    border-radius: var(--border-radius-medium);
-    padding: 5px;
-    box-shadow: 0 3px 10px var(--color-shadow);
-}
-
-.tab-link {
-    background: none;
-    border: none;
-    color: var(--color-text-light);
-    padding: 10px 20px;
-    font-size: 0.95em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: color 0.2s ease, background-color 0.2s ease;
-    border-radius: var(--border-radius-small);
-    flex-grow: 1; /* Tabs share space */
+.coming-soon-placeholder {
+    font-size: 1.25rem;
+    color: var(--color-text-inverse);
     text-align: center;
+    padding: 64px 32px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border-radius: var(--border-radius-2xl);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
 }
 
-.tab-link:hover {
-    color: var(--color-primary-dark);
+/* Footer */
+footer {
+    text-align: center;
+    padding: 48px 24px;
+    margin-top: 64px;
+    color: var(--color-text-tertiary);
+    font-size: 0.875rem;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
 }
 
-.tab-link.active {
-    color: var(--color-white);
-    background-color: var(--color-primary);
-}
-
-.tab-content {
-    display: none;
-    padding: 20px;
-    background-color: var(--color-bg-panel);
-    border-radius: var(--border-radius-large);
-    box-shadow: 0 5px 20px var(--color-shadow);
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-.tab-content h3 {
-    font-size: 1.3em;
-    font-weight: 700;
-    color: var(--color-text-dark);
-    margin-top: 0;
-    margin-bottom: 20px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 992px) {
-    .hero {
-        flex-direction: column;
-        text-align: center;
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .hero-content h2 {
+        font-size: 2.5rem;
     }
-    .hero-content {
-        max-width: 100%;
-        margin-bottom: 20px;
+    
+    .library-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 24px;
     }
 }
 
 @media (max-width: 768px) {
-    header {
-        padding: 0 15px;
-        height: auto; /* Allow header to wrap */
+    .container {
+        padding: 0 16px;
     }
+    
     .header-content {
         flex-direction: column;
-        padding: 10px 0;
+        height: auto;
+        padding: 16px;
+        gap: 16px;
     }
-    header h1 a {
-        margin-bottom: 10px;
+    
+    .hero {
+        padding: 48px 32px;
+        margin: 16px auto;
     }
-    nav ul {
-        flex-wrap: wrap;
-        justify-content: center;
-        margin-bottom: 10px;
-    }
-    nav ul li {
-        margin: 5px;
-    }
-    .auth-buttons-header {
-        margin-left: 0;
-        width: 100%;
-        justify-content: center;
-    }
+    
     .hero-content h2 {
-        font-size: 2.2em;
+        font-size: 2rem;
     }
-    .hero-content p {
-        font-size: 1em;
+    
+    .content-section {
+        padding: 32px 24px;
+        margin: 16px auto;
     }
-    .content-section > h2 {
-        font-size: 1.4em;
-    }
+    
     .user-info-header {
         flex-direction: column;
         text-align: center;
+        padding: 32px 24px;
     }
-    .profile-tabs {
+    
+    .epub-reader-panel-content {
+        width: 95vw;
+        height: 90vh;
+        border-radius: var(--border-radius-xl);
+    }
+    
+    .epub-reader-controls {
         flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
     }
-    .tab-link {
-        margin-bottom: 5px;
+}
+
+@media (max-width: 480px) {
+    .library-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .novel-cover {
+        height: 240px;
+    }
+    
+    .upload-container {
+        padding: 24px 16px;
+    }
+    
+    #upload-form {
+        gap: 12px;
     }
 }
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes twinkle {
-    0%, 100% { opacity: 0.3; } /* Stars dimmer */
-    50% { opacity: 0.9; }    /* Stars brighter */
-}
-
