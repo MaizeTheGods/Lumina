@@ -77,9 +77,9 @@ button:hover {
     margin: 0;
     font-size: 1.2em;
     border-bottom: 1px solid var(--border-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
+    line-height: 1.4;
 }
 
 #toc-nav {
@@ -100,6 +100,8 @@ button:hover {
     color: var(--text-color);
     border-bottom: 1px solid var(--border-color);
     transition: background-color 0.2s;
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 #toc-list li a:hover {
@@ -113,13 +115,14 @@ button:hover {
 }
 
 /* --- CONTENIDO PRINCIPAL --- */
+/* ===== REGLA CORREGIDA ===== */
 #main-content {
     flex-grow: 1;
     transition: margin-left 0.3s ease-in-out;
     margin-left: 280px;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    /* Se eliminó 'height: 100vh;' para que el contenedor no ocupe toda la pantalla */
 }
 
 #main-content.sidebar-hidden {
@@ -240,4 +243,42 @@ button:hover {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* --- ESTILOS RESPONSIVOS PARA MÓVILES --- */
+@media (max-width: 768px) {
+
+    #sidebar {
+        transform: translateX(-100%);
+        box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+    }
+    
+    #sidebar.is-open {
+        transform: translateX(0);
+    }
+
+    #sidebar.hidden {
+        transform: translateX(-100%);
+    }
+
+    #main-content, #main-content.sidebar-hidden {
+        margin-left: 0;
+    }
+    
+    #reader-area {
+        padding: 25px 15px;
+    }
+
+    #chapter-title {
+        font-size: 1.1em;
+    }
+    
+    #settings-panel {
+        width: 90%;
+        max-width: 350px;
+        top: 55px;
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%); 
+    }
 }

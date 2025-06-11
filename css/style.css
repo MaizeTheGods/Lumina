@@ -401,8 +401,9 @@ nav ul li a.active-nav {
 .library-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 32px;
-    margin-top: 32px;
+    gap: 40px;
+    margin: 32px 16px 0;
+    padding: 0 16px;
 }
 
 .novel-card {

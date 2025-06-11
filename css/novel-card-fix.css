@@ -1,0 +1,7 @@
+.novel-card {
+    border: 3px solid var(--color-border) !important;
+}
+
+.novel-card:hover {
+    border-color: var(--color-primary) !important;
+}

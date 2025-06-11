@@ -123,9 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedSettings = localStorage.getItem('readerSettings');
         if (savedSettings) settings = { ...settings, ...JSON.parse(savedSettings) };
         applySettings();
-        toggleSidebar(settings.sidebarOpen, false);
+        if (window.innerWidth > 768) {
+            toggleSidebar(settings.sidebarOpen, false);
+        }
     }
-
+    
     function toggleSidebar(show, save = true) {
         settings.sidebarOpen = typeof show === 'boolean' ? show : !settings.sidebarOpen;
         dom.sidebar.classList.toggle('hidden', !settings.sidebarOpen);
@@ -144,24 +146,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- EVENT LISTENERS ---
-    dom.sidebarToggleBtn.addEventListener('click', () => toggleSidebar());
+
+    // ===== CORRECCIÓN FINAL: Cambiamos .add por .toggle =====
+    dom.sidebarToggleBtn.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            // Lógica para MÓVIL: Ahora sí activa y desactiva
+            dom.sidebar.classList.toggle('is-open');
+            dom.overlay.classList.toggle('visible');
+        } else {
+            // Lógica para ESCRITORIO: usar la función original
+            toggleSidebar();
+        }
+    });
+
     dom.settingsToggleBtn.addEventListener('click', () => togglePanel(dom.settingsPanel));
+    
     dom.overlay.addEventListener('click', () => {
         dom.settingsPanel.classList.remove('visible');
+        dom.sidebar.classList.remove('is-open');
         dom.overlay.classList.remove('visible');
     });
+
     dom.nextChapterBtn.addEventListener('click', () => displayChapter(currentChapterIndex + 1));
     dom.prevChapterBtn.addEventListener('click', () => displayChapter(currentChapterIndex - 1));
+
     dom.tocList.addEventListener('click', (e) => {
         e.preventDefault();
-        if (e.target.tagName === 'A') displayChapter(parseInt(e.target.dataset.index));
+        if (e.target.tagName === 'A') {
+            displayChapter(parseInt(e.target.dataset.index));
+            if (window.innerWidth <= 768) {
+                dom.sidebar.classList.remove('is-open');
+                dom.overlay.classList.remove('visible');
+            }
+        }
     });
+    
     dom.increaseFontBtn.addEventListener('click', () => changeFontSize(2));
     dom.decreaseFontBtn.addEventListener('click', () => changeFontSize(-2));
     dom.themeButtons.forEach(btn => btn.addEventListener('click', () => changeTheme(btn.dataset.theme)));
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') displayChapter(currentChapterIndex + 1);
-        if (e.key === 'ArrowLeft') displayChapter(currentChapterIndex - 1);
+        if (e.key === 'ArrowRight' && !dom.nextChapterBtn.disabled) displayChapter(currentChapterIndex + 1);
+        if (e.key === 'ArrowLeft' && !dom.prevChapterBtn.disabled) displayChapter(currentChapterIndex - 1);
     });
 
     // --- PUNTO DE INICIO ---
